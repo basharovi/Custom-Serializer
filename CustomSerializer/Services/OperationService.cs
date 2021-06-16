@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 using CustomSerializer.Model;
@@ -58,24 +59,29 @@ namespace CustomSerializer.Services
             {
                 LocationName = values[0],
                 LocationLabel = values[0],
-
-                TimeSeries = "Blue Gate",
+                TimeSeries = "BlueGate",
                 Tenant = "TH",
                 Endpoint = values[1],
-                Variable = new Variable
+                Variables = new Variables
                 {
                     RSSI = values[3],
                     TokenSerial = values[2],
-                    TokenTimestamp = values[4]
+                    TokenTimestamp = ToSpecificFormat(values[4])
                 }
             };
 
             if (values.ElementAtOrDefault(5) != null)
             {
-                model.Timestamp = values[5];
+                model.Timestamp = ToSpecificFormat(values[5]);
             }
 
             return model;
+        }
+
+        private static string ToSpecificFormat(string dateTime)
+        {
+            var formattedDateTime = Convert.ToDateTime(dateTime).ToString("yyyy-MM-dd'T'HH:mm:ss'Z'");
+            return formattedDateTime;
         }
     }
 }

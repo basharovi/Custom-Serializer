@@ -8,10 +8,10 @@
         public string Tenant { get; set; }
         public string LocationName { get; set; }
         public string LocationLabel { get; set; }
-        public Variable Variable { get; set; }
+        public Variables Variables { get; set; }
     }
 
-    public class Variable 
+    public class Variables 
     {
         public string TokenSerial { get; set; }
         public string TokenTimestamp { get; set; }

@@ -1,7 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using System.Text.Json;
 using CustomSerializer.Model;
-using System.Collections.Generic;
 
 namespace CustomSerializer
 {
@@ -9,39 +10,49 @@ namespace CustomSerializer
     {
         static void Main(string[] args)
         {
-            var fileNames = ReadAllFileNames(Constants.InputDirectory);
+            var filesPath = ReadAllFilesPathFromTheDirectory(Constants.InputDirectory);
 
-            ReadFromCsvFile(fileNames);
+            ReadAndWriteFiles(filesPath);
 
             Console.WriteLine("Hello World!");
         }
 
-        private static string[] ReadAllFileNames(string path)
+        private static string[] ReadAllFilesPathFromTheDirectory(string path)
         {
             if (!Directory.Exists(path))
                 throw new DirectoryNotFoundException();
 
-            var fileNames = Directory.GetFiles(path);
+            var filesPath = Directory.GetFiles(path);
 
-            return fileNames;
+            return filesPath;
         }
         
-        private static void ReadFromCsvFile(string[] fileNames)
+        private static void ReadAndWriteFiles(string[] filePaths)
         {
-            foreach (var fileName in fileNames)
+            foreach (var filePath in filePaths)
             {
-                using var reader = new StreamReader(fileName);
-                var jsonList = new List<JsonModel>();
+                //Read
+                var jsonString = string.Empty;
+                using var reader = new StreamReader(filePath);
 
                 while (!reader.EndOfStream)
                 {
                     var line = reader.ReadLine();
                     var values = line.Split(',');
 
-                    jsonList.Add(MapToJsonModel(values));
+                    var jsonModel = MapToJsonModel(values);
+
+                    jsonString += $"{jsonModel.Endpoint}:{JsonSerializer.Serialize(jsonModel)}\n";
                 }
+
+                //Write
+                var outputPath = filePath.Replace("Input", "Output").Replace(".csv", ".txt");
+
+                using StreamWriter streamWrite = File.CreateText(outputPath);
+                streamWrite.WriteLine(jsonString);
             }
         }
+
 
         private static JsonModel MapToJsonModel(string[] values)
         {
@@ -49,7 +60,7 @@ namespace CustomSerializer
             {
                 LocationName = values[0],
                 LocationLabel = values[0],
-                Timestamp = values[5],
+                
                 TimeSeries = "Blue Gate",
                 Tenant = "TH",
                 Endpoint = values[1],
@@ -60,6 +71,11 @@ namespace CustomSerializer
                     TokenTimestamp = values[4]
                 }
             };
+
+            if (values.ElementAtOrDefault(5) != null)
+            {
+                model.Timestamp = values[5];
+            }
 
             return model;
         }

@@ -5,7 +5,15 @@ namespace CustomSerializer
 {
     public static class Constants
     {
-        public static string DataDirectory { get; set; } = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data");
-        public static string InputDirectory { get; set; } = Path.Combine(DataDirectory, "Input");
+        public static string InputDirectory { get; set; } = Path.Combine(ProjectDirectory, "Data","Input");
+
+        private static string ProjectDirectory
+        {
+            get
+            {
+                var baseDirectory = Environment.CurrentDirectory;
+                return Directory.GetParent(baseDirectory).Parent.Parent.FullName;
+            }
+        }
     }
 }

@@ -1,8 +1,7 @@
-﻿using CsvHelper;
-using CustomSerializer.Model;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
+using CustomSerializer.Model;
+using System.Collections.Generic;
 
 namespace CustomSerializer
 {
@@ -12,7 +11,7 @@ namespace CustomSerializer
         {
             var fileNames = ReadAllFileNames(Constants.InputDirectory);
 
-            ReadFromJsonFile(fileNames);
+            ReadFromCsvFile(fileNames);
 
             Console.WriteLine("Hello World!");
         }
@@ -27,25 +26,42 @@ namespace CustomSerializer
             return fileNames;
         }
         
-        private static void ReadFromJsonFile(string[] fileNames)
+        private static void ReadFromCsvFile(string[] fileNames)
         {
             foreach (var fileName in fileNames)
             {
-                using (var reader = new StreamReader(fileName))
+                using var reader = new StreamReader(fileName);
+                var jsonList = new List<JsonModel>();
+
+                while (!reader.EndOfStream)
                 {
-                    var jsonList = new List<JsonModel>();
+                    var line = reader.ReadLine();
+                    var values = line.Split(',');
 
-                    while (!reader.EndOfStream)
-                    {
-                        var line = reader.ReadLine();
-                        var values = line.Split(',');
-
-                        jsonList.Add( new JsonModel{ 
-                            LocationName = values[0]
-                        });
-                    }
+                    jsonList.Add(MapToJsonModel(values));
                 }
             }
+        }
+
+        private static JsonModel MapToJsonModel(string[] values)
+        {
+            var model = new JsonModel
+            {
+                LocationName = values[0],
+                LocationLabel = values[0],
+                Timestamp = values[5],
+                TimeSeries = "Blue Gate",
+                Tenant = "TH",
+                Endpoint = values[1],
+                Variable = new Variable
+                {
+                    RSSI = values[3],
+                    TokenSerial = values[2],
+                    TokenTimestamp = values[4]
+                }
+            };
+
+            return model;
         }
     }
 }

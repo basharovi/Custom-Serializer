@@ -15,6 +15,6 @@
     {
         public string TokenSerial { get; set; }
         public string TokenTimestamp { get; set; }
-        public string RSSI { get; set; }
+        public int RSSI { get; set; }
     }
 }

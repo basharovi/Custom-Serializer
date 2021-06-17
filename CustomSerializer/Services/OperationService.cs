@@ -64,7 +64,7 @@ namespace CustomSerializer.Services
                 Endpoint = values[1],
                 Variables = new Variables
                 {
-                    RSSI = values[3],
+                    RSSI = Convert.ToInt32(values[3]),
                     TokenSerial = values[2],
                     TokenTimestamp = ToSpecificFormat(values[4])
                 }

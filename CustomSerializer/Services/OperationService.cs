@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using CsvHelper;
 using CustomSerializer.Model;
 
 namespace CustomSerializer.Services
@@ -30,20 +31,12 @@ namespace CustomSerializer.Services
             foreach (var filePath in filePaths)
             {
                 //Read
-                var jsonString = string.Empty;
-                using var reader = new StreamReader(filePath);
+                var lines = File.ReadLines(filePath).Select(x => x.Split(",")).ToList();
+                lines.RemoveAt(0);
+                var jsonModels = lines.Select(x => MapToJsonModel(x));
 
-                while (!reader.EndOfStream)
-                {
-                    var line = reader.ReadLine();
-                    var values = line.Split(',');
-
-                    if (line.Contains("device_id"))
-                        continue;
-
-                    var jsonModel = MapToJsonModel(values);
-                    jsonString += $"{jsonModel.Endpoint}:{JsonSerializer.Serialize(jsonModel)}\n";
-                }
+                var jsonStringArray = jsonModels.Select(x => $"{x.Endpoint}:{JsonSerializer.Serialize(x)}\n");
+                var jsonString = string.Join("", jsonStringArray.Select(x => x.ToString()).ToArray());
 
                 //Write
                 var outputPath = filePath.Replace("Input", "Output").Replace(".csv", ".txt");
